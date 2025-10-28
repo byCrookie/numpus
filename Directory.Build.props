@@ -1,0 +1,50 @@
+<Project>
+    <PropertyGroup>
+        <!-- Use centralized artifacts output -->
+        <ArtifactsPath>$(MSBuildThisFileDirectory)artifacts</ArtifactsPath>
+        <UseArtifactsOutput>true</UseArtifactsOutput>
+
+        <!-- Common properties for all projects -->
+        <LangVersion>latest</LangVersion>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <AnalysisLevel>latest</AnalysisLevel>
+
+        <!-- Version Information -->
+        <Version>1.0.0</Version>
+        <AssemblyVersion>1.0.0.0</AssemblyVersion>
+        <FileVersion>1.0.0.0</FileVersion>
+        <InformationalVersion>1.0.0</InformationalVersion>
+
+        <!-- Package Metadata -->
+        <Authors>byCrookie</Authors>
+        <Company>byCrookie</Company>
+        <Product>Numpus</Product>
+        <Copyright>Copyright © 2025</Copyright>
+        <PackageProjectUrl>https://github.com/byCrookie/numpus</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/byCrookie/numpus</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <Description>A modern, high-performance calculator application with unit support</Description>
+        <PackageTags>calculator;units;avalonia;desktop</PackageTags>
+
+        <!-- Enable deterministic builds -->
+        <Deterministic>true</Deterministic>
+        <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+    </PropertyGroup>
+
+    <!-- License file -->
+    <ItemGroup>
+        <None Include="$(MSBuildThisFileDirectory)LICENSE" Pack="true" PackagePath="" />
+    </ItemGroup>
+
+    <!-- Common analyzer packages for all projects -->
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+</Project>

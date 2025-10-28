@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net9.0</TargetFramework>
+        <RuntimeIdentifiers>win-x64;linux-x64;osx-x64;osx-arm64</RuntimeIdentifiers>
+        <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+
+        <!-- Application icon -->
+        <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
+
+        <!-- Publishing configuration -->
+        <PublishSingleFile>false</PublishSingleFile>
+        <SelfContained>true</SelfContained>
+        <PublishTrimmed>false</PublishTrimmed>
+        <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+        <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+        <DebugType>none</DebugType>
+        <DebugSymbols>false</DebugSymbols>
+
+        <!-- Application info -->
+        <RootNamespace>Numpus</RootNamespace>
+    </PropertyGroup>
+
+    <!-- Include icon and assets -->
+    <ItemGroup>
+        <Content Include="Assets\**\*" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+
+    <!-- Package references using Central Package Management -->
+    <ItemGroup>
+        <PackageReference Include="Avalonia" />
+        <PackageReference Include="Avalonia.Desktop" />
+        <PackageReference Include="Avalonia.Themes.Fluent" />
+        <PackageReference Include="Avalonia.Fonts.Inter" />
+        <PackageReference Include="Avalonia.ReactiveUI" />
+        <PackageReference Include="UnitsNet" />
+        <PackageReference Include="Pidgin" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" />
+        <PackageReference Include="Velopack" />
+    </ItemGroup>
+</Project>

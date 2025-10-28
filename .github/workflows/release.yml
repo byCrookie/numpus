@@ -1,0 +1,301 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Release tag (e.g., v1.2.3)"
+        required: true
+      version:
+        description: "Version to publish (defaults to tag without the leading v)"
+        required: false
+      release_name:
+        description: "Release name (defaults to the tag)"
+        required: false
+
+permissions:
+  contents: write
+
+env:
+  DOTNET_VERSION: "9.0.100"
+  CONFIGURATION: Release
+  PACK_ID: Numpus
+  PACK_TITLE: Numpus
+  PACK_AUTHORS: byCrookie
+
+jobs:
+  build:
+    name: Publish ${{ matrix.runtime }}
+    runs-on: ${{ matrix.os }}
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+      name: ${{ steps.version.outputs.release_name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            runtime: win-x64
+            channel: win
+            extension: .exe
+            mainExe: Numpus.exe
+          - os: ubuntu-latest
+            runtime: linux-x64
+            channel: linux
+            extension: ""
+            mainExe: Numpus
+          - os: macos-latest
+            runtime: osx-x64
+            channel: osx
+            extension: ""
+            mainExe: Numpus
+          - os: macos-latest
+            runtime: osx-arm64
+            channel: osx-arm64
+            extension: ""
+            mainExe: Numpus
+    env:
+      PROJECT_DIR: Numpus
+      PROJECT_FILE: Numpus/Numpus.csproj
+      PUBLISH_DIR: ${{ github.workspace }}/artifacts/publish/Numpus/Release_${{ matrix.runtime }}
+      VELOPACK_DIR: ${{ github.workspace }}/artifacts/velopack/${{ matrix.runtime }}
+      MAIN_EXE: ${{ matrix.mainExe }}
+      CHANNEL: ${{ matrix.channel }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Determine version
+        id: version
+        shell: pwsh
+        run: |
+          $isDispatch = "${{ github.event_name }}" -eq "workflow_dispatch"
+          $tag = if ($isDispatch) { "${{ github.event.inputs.tag_name }}" } else { "${{ github.ref_name }}" }
+          if ([string]::IsNullOrWhiteSpace($tag)) {
+            throw 'Unable to determine tag name.'
+          }
+
+          $rawVersion = "${{ github.event.inputs.version }}"
+          $versionInput = if ($isDispatch -and -not [string]::IsNullOrWhiteSpace($rawVersion)) {
+            $rawVersion
+          } else {
+            $tag -replace '^v', ''
+          }
+
+          if ([string]::IsNullOrWhiteSpace($versionInput)) {
+            throw 'Unable to determine version number.'
+          }
+
+          $rawName = "${{ github.event.inputs.release_name }}"
+          $releaseName = if ($isDispatch -and -not [string]::IsNullOrWhiteSpace($rawName)) {
+            $rawName
+          } else {
+            $tag
+          }
+
+          Write-Host "Version: $versionInput"
+          Write-Host "Tag: $tag"
+          Write-Host "Release name: $releaseName"
+
+          Add-Content -Path $env:GITHUB_ENV -Value "VERSION=$versionInput" -Encoding utf8
+          Add-Content -Path $env:GITHUB_ENV -Value "RELEASE_TAG=$tag" -Encoding utf8
+
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "version=$versionInput" -Encoding utf8
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "tag=$tag" -Encoding utf8
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "release_name=$releaseName" -Encoding utf8
+
+      - name: Update Directory.Build.props version
+        shell: pwsh
+        run: |
+          $propsPath = "Directory.Build.props"
+          [xml]$props = Get-Content $propsPath
+          if ([string]::IsNullOrWhiteSpace($env:VERSION)) {
+            throw 'VERSION environment variable is not set. Ensure the Determine version step ran successfully.'
+          }
+          $props.Project.PropertyGroup.Version = $env:VERSION
+          if ($props.Project.PropertyGroup.FileVersion) {
+            $props.Project.PropertyGroup.FileVersion = "$($env:VERSION).0"
+          }
+          if ($props.Project.PropertyGroup.InformationalVersion) {
+            $props.Project.PropertyGroup.InformationalVersion = $env:VERSION
+          }
+          $props.Save($propsPath)
+          Write-Host "Updated project version to $env:VERSION"
+
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.PROJECT_FILE }} --runtime ${{ matrix.runtime }}
+
+      - name: Publish application
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "${{ env.PUBLISH_DIR }}" | Out-Null
+          dotnet publish ${{ env.PROJECT_FILE }} `
+            --configuration ${{ env.CONFIGURATION }} `
+            --runtime ${{ matrix.runtime }} `
+            --self-contained true `
+            --no-restore `
+            --output "${{ env.PUBLISH_DIR }}"
+
+      - name: Install Velopack CLI
+        shell: pwsh
+        run: |
+          dotnet tool update --global vpk | Out-Null
+          if ($LASTEXITCODE -ne 0) {
+              dotnet tool install --global vpk | Out-Null
+          }
+          $toolRoot = [Environment]::GetFolderPath('UserProfile')
+          $toolPath = Join-Path $toolRoot '.dotnet/tools'
+          if (Test-Path $toolPath) {
+              $toolPath | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          }
+
+      - name: Download previous releases (delta support)
+        if: always()
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "${{ env.VELOPACK_DIR }}" | Out-Null
+          vpk download github `
+            --repoUrl https://github.com/${{ github.repository }} `
+            --channel "${{ env.CHANNEL }}" `
+            -o "${{ env.VELOPACK_DIR }}" `
+            2>$null
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host 'No previous releases found (expected for first release).'
+            $global:LASTEXITCODE = 0
+          }
+
+      - name: Package Velopack release
+        shell: pwsh
+        run: |
+          $arguments = @(
+            'pack',
+            '--packId',      "${{ env.PACK_ID }}",
+            '--packVersion', $env:VERSION,
+            '--packDir',     "${{ env.PUBLISH_DIR }}",
+            '--mainExe',     "${{ env.MAIN_EXE }}",
+            '--packTitle',   "${{ env.PACK_TITLE }}",
+            '--packAuthors', "${{ env.PACK_AUTHORS }}",
+            '-o',            "${{ env.VELOPACK_DIR }}"
+          )
+
+          if (-not [string]::IsNullOrWhiteSpace("${{ env.CHANNEL }}")) {
+              $arguments += @('--channel', "${{ env.CHANNEL }}")
+          }
+
+          $icon = Join-Path '${{ env.PROJECT_DIR }}' 'Assets' 'icon.ico'
+          if ((Test-Path $icon) -and ("${{ matrix.runtime }}" -like 'win-*')) {
+              $arguments += @('--icon', $icon)
+          }
+
+          vpk @arguments
+
+      - name: Upload Velopack artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: velopack-${{ matrix.runtime }}
+          path: ${{ env.VELOPACK_DIR }}
+          if-no-files-found: error
+          retention-days: 7
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ needs.build.outputs.tag }}
+      RELEASE_VERSION: ${{ needs.build.outputs.version }}
+      RELEASE_NAME: ${{ needs.build.outputs.name }}
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Install Velopack CLI
+        run: |
+          dotnet tool update --global vpk || dotnet tool install --global vpk
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+
+      - name: Upload Velopack releases to GitHub
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          first_runtime=1
+          for runtime in win-x64 linux-x64 osx-x64 osx-arm64; do
+            artifact_dir="artifacts/velopack-${runtime}"
+            if [[ -d "$artifact_dir" ]]; then
+              echo "Uploading Velopack artifacts for $runtime"
+              channel=""
+              case "$runtime" in
+                win-*) channel="win" ;;
+                linux-*) channel="linux" ;;
+                osx-arm64) channel="osx-arm64" ;;
+                osx-*) channel="osx" ;;
+                *) channel="$runtime" ;;
+              esac
+              if [[ $first_runtime -eq 1 ]]; then
+                vpk upload github \
+                  --repoUrl https://github.com/${{ github.repository }} \
+                  --token "$GITHUB_TOKEN" \
+                  --tag "$RELEASE_TAG" \
+                  --releaseName "$RELEASE_NAME" \
+                  --outputDir "$artifact_dir" \
+                  --channel "$channel" \
+                  --publish
+                first_runtime=0
+              else
+                vpk upload github \
+                  --repoUrl https://github.com/${{ github.repository }} \
+                  --token "$GITHUB_TOKEN" \
+                  --tag "$RELEASE_TAG" \
+                  --releaseName "$RELEASE_NAME" \
+                  --outputDir "$artifact_dir" \
+                  --channel "$channel" \
+                  --publish \
+                  --merge
+              fi
+            else
+              echo "No Velopack artifacts found for $runtime"
+            fi
+          done
+
+      - name: Generate release notes
+        run: |
+          cat <<EOF > release-notes.md
+          # Numpus $RELEASE_VERSION
+
+          ## Downloads
+
+          - Velopack packages (auto-update installers) for Windows, macOS, and Linux are attached as release assets.
+          - Portable archives generated by Velopack are available for each runtime.
+
+          ## Installation
+
+          Use the Velopack installer for automatic updates. The portable binaries can be run directly after download.
+
+          ## What's New
+
+          Refer to the commit history for detailed changes.
+          EOF
+          cat release-notes.md
+
+      - name: Update release description
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: ${{ env.RELEASE_NAME }}
+          body_path: release-notes.md
+          draft: false
+          prerelease: ${{ contains(env.RELEASE_TAG, '-alpha') || contains(env.RELEASE_TAG, '-beta') || contains(env.RELEASE_TAG, '-rc') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

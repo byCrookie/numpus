@@ -1,0 +1,43 @@
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background -->
+    <rect width="256" height="256" fill="#0078D4" rx="32" />
+
+    <!-- Calculator Display -->
+    <rect x="40" y="40" width="176" height="60" fill="#ffffff" rx="8" />
+
+    <!-- Number pad -->
+    <!-- Row 1 -->
+    <circle cx="76" cy="140" r="18" fill="#ffffff" />
+    <circle cx="128" cy="140" r="18" fill="#ffffff" />
+    <circle cx="180" cy="140" r="18" fill="#ffffff" />
+
+    <!-- Row 2 -->
+    <circle cx="76" cy="180" r="18" fill="#ffffff" />
+    <circle cx="128" cy="180" r="18" fill="#ffffff" />
+    <circle cx="180" cy="180" r="18" fill="#ffffff" />
+
+    <!-- Row 3 -->
+    <circle cx="76" cy="220" r="18" fill="#ffffff" />
+    <circle cx="128" cy="220" r="18" fill="#ffffff" />
+    <circle cx="180" cy="220" r="18" fill="#ffffff" />
+
+    <!-- Symbols -->
+    <text x="76" y="148" font-family="Arial, sans-serif" font-size="20" font-weight="bold"
+        text-anchor="middle" fill="#0078D4">7</text>
+    <text x="128" y="148" font-family="Arial, sans-serif" font-size="20" font-weight="bold"
+        text-anchor="middle" fill="#0078D4">8</text>
+    <text x="180" y="148" font-family="Arial, sans-serif" font-size="20" font-weight="bold"
+        text-anchor="middle" fill="#0078D4">9</text>
+    <text x="76" y="188" font-family="Arial, sans-serif" font-size="20" font-weight="bold"
+        text-anchor="middle" fill="#0078D4">4</text>
+    <text x="128" y="188" font-family="Arial, sans-serif" font-size="20" font-weight="bold"
+        text-anchor="middle" fill="#0078D4">5</text>
+    <text x="180" y="188" font-family="Arial, sans-serif" font-size="20" font-weight="bold"
+        text-anchor="middle" fill="#0078D4">6</text>
+    <text x="76" y="228" font-family="Arial, sans-serif" font-size="20" font-weight="bold"
+        text-anchor="middle" fill="#0078D4">1</text>
+    <text x="128" y="228" font-family="Arial, sans-serif" font-size="20" font-weight="bold"
+        text-anchor="middle" fill="#0078D4">2</text>
+    <text x="180" y="228" font-family="Arial, sans-serif" font-size="20" font-weight="bold"
+        text-anchor="middle" fill="#0078D4">3</text>
+</svg>

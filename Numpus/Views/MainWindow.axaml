@@ -1,0 +1,374 @@
+<Window xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:Numpus.ViewModels"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d" d:DesignWidth="1400" d:DesignHeight="900"
+    x:Class="Numpus.Views.MainWindow"
+    x:Name="RootWindow"
+    x:DataType="vm:MainWindowViewModel"
+    Title="Numpus"
+    Width="1400" Height="900"
+    Background="{DynamicResource BaseBackgroundBrush}"
+    SystemDecorations="None"
+    ExtendClientAreaToDecorationsHint="True"
+    ExtendClientAreaChromeHints="NoChrome"
+    ExtendClientAreaTitleBarHeightHint="44"
+    TransparencyLevelHint="None">
+
+    <Design.DataContext>
+        <vm:DesignTimeMainWindowViewModel />
+    </Design.DataContext>
+
+    <Window.Resources>
+        <SolidColorBrush x:Key="BaseBackgroundBrush" Color="#121212" />
+        <SolidColorBrush x:Key="SurfaceBrush" Color="#1A1A1A" />
+        <SolidColorBrush x:Key="SurfaceAccentBrush" Color="#1F1F1F" />
+        <SolidColorBrush x:Key="BorderBrush" Color="#262626" />
+        <SolidColorBrush x:Key="TextPrimaryBrush" Color="#E5E5E5" />
+        <SolidColorBrush x:Key="TextSecondaryBrush" Color="#A0A0A0" />
+        <SolidColorBrush x:Key="AccentLineBrush" Color="#2D2D2D" />
+        <SolidColorBrush x:Key="ErrorBrush" Color="#C06464" />
+        <x:Double x:Key="EditorLineHeight">22</x:Double>
+    </Window.Resources>
+
+    <Window.Styles>
+        <Style Selector="Button.command">
+            <Setter Property="Padding" Value="10,6" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceAccentBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="CornerRadius" Value="3" />
+            <Setter Property="FontSize" Value="12" />
+        </Style>
+
+        <Style Selector="Button.command:pointerover">
+            <Setter Property="Background" Value="#262626" />
+        </Style>
+
+        <Style Selector="Button.copy">
+            <Setter Property="Padding" Value="4,2" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+            <Setter Property="CornerRadius" Value="3" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
+        <Style Selector="Button.copy:pointerover">
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="Background" Value="#1E1E1E" />
+        </Style>
+
+        <Style Selector="Button.windowControl">
+            <Setter Property="Width" Value="34" />
+            <Setter Property="Height" Value="24" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+
+        <Style Selector="Button.windowControl:pointerover">
+            <Setter Property="Background" Value="#2A2A2A" />
+        </Style>
+
+        <Style Selector="Button.windowControl#CloseButton:pointerover">
+            <Setter Property="Background" Value="#3A2A2A" />
+        </Style>
+
+        <Style Selector="TextBlock.result">
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="FontFamily" Value="Consolas, Courier New, monospace" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="Medium" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="LineHeight" Value="{StaticResource EditorLineHeight}" />
+        </Style>
+
+        <Style Selector="TextBlock.error">
+            <Setter Property="Foreground" Value="{DynamicResource ErrorBrush}" />
+            <Setter Property="FontFamily" Value="Consolas, Courier New, monospace" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="Medium" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="LineHeight" Value="{StaticResource EditorLineHeight}" />
+        </Style>
+
+        <Style Selector="TextBlock.comment">
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+            <Setter Property="FontFamily" Value="Consolas, Courier New, monospace" />
+            <Setter Property="FontStyle" Value="Italic" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="LineHeight" Value="{StaticResource EditorLineHeight}" />
+        </Style>
+
+        <Style Selector="TextBlock.lineNumber">
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+            <Setter Property="FontFamily" Value="Consolas, Courier New, monospace" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Width" Value="40" />
+            <Setter Property="TextAlignment" Value="Right" />
+            <Setter Property="Margin" Value="0,0,10,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Height" Value="{StaticResource EditorLineHeight}" />
+            <Setter Property="LineHeight" Value="{StaticResource EditorLineHeight}" />
+        </Style>
+
+        <Style Selector="Border.lineContainer">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Padding" Value="12,0,8,0" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="Height" Value="{StaticResource EditorLineHeight}" />
+        </Style>
+
+        <Style Selector="Border.lineContainer:pointerover">
+            <Setter Property="Background" Value="#191919" />
+        </Style>
+
+        <Style Selector="Border.errorContainer">
+            <Setter Property="BorderBrush" Value="{DynamicResource ErrorBrush}" />
+            <Setter Property="BorderThickness" Value="2,0,0,0" />
+        </Style>
+
+        <Style Selector="GridSplitter.splitter">
+            <Setter Property="Background" Value="#1C1C1C" />
+            <Setter Property="Width" Value="4" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Stretch" />
+            <Setter Property="Cursor" Value="SizeWestEast" />
+        </Style>
+
+        <Style Selector="GridSplitter.splitter:pointerover">
+            <Setter Property="Background" Value="#2A2A2A" />
+        </Style>
+
+        <Style Selector="TextBox.editor">
+            <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Padding" Value="8,0,12,0" />
+            <Setter Property="CaretBrush" Value="{DynamicResource TextPrimaryBrush}" />
+            <Setter Property="SelectionBrush" Value="#2D4A73" />
+            <Setter Property="FocusAdorner" Value="{x:Null}" />
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <ScrollViewer x:Name="PART_ScrollViewer"
+                        Padding="{TemplateBinding Padding}"
+                        Background="{TemplateBinding Background}"
+                        HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
+                        VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
+                        IsDeferredScrollingEnabled="False">
+                        <TextPresenter x:Name="PART_TextPresenter"
+                            Background="Transparent"
+                            SelectionBrush="{TemplateBinding SelectionBrush}"
+                            SelectionForegroundBrush="{TemplateBinding SelectionForegroundBrush}"
+                            CaretBrush="{TemplateBinding CaretBrush}"
+                            Text="{TemplateBinding Text}"
+                            TextAlignment="{TemplateBinding TextAlignment}"
+                            TextWrapping="{TemplateBinding TextWrapping}"
+                            LineHeight="{TemplateBinding LineHeight}"
+                            SelectionStart="{TemplateBinding SelectionStart}"
+                            SelectionEnd="{TemplateBinding SelectionEnd}"
+                            CaretIndex="{TemplateBinding CaretIndex}" />
+                    </ScrollViewer>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+
+        <Style Selector="TextBox.editor:pointerover">
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+        </Style>
+
+        <Style Selector="TextBox.editor:focus">
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+        </Style>
+    </Window.Styles>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <!-- Custom Title Bar -->
+        <Border x:Name="TitleBar" Grid.Row="0" Background="{DynamicResource SurfaceBrush}"
+            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1"
+            Padding="12,8" PointerPressed="TitleBar_PointerPressed"
+            DoubleTapped="TitleBar_DoubleTapped">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6">
+                    <Button Command="{Binding LoadCommand}" Classes="command" Content="Load" />
+                    <Button Command="{Binding SaveCommand}" Classes="command" Content="Save" />
+                    <Button Command="{Binding ClearCommand}" Classes="command" Content="Clear" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Vertical"
+                    HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Text="Numpus" Foreground="{DynamicResource TextPrimaryBrush}"
+                        FontSize="14" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4"
+                    HorizontalAlignment="Right">
+                    <Button Classes="windowControl" Click="MinimizeButton_Click">
+                        <Path Data="M2,8 L10,8" Stroke="{DynamicResource TextPrimaryBrush}"
+                            StrokeThickness="1.5"
+                            StrokeLineCap="Square" HorizontalAlignment="Center"
+                            VerticalAlignment="Center" />
+                    </Button>
+                    <Button Classes="windowControl" Click="MaximizeRestoreButton_Click">
+                        <Path Data="M2,2 L10,2 L10,10 L2,10 Z"
+                            Stroke="{DynamicResource TextPrimaryBrush}" StrokeThickness="1.3"
+                            StrokeJoin="Miter" StrokeLineCap="Square" />
+                    </Button>
+                    <Button x:Name="CloseButton" Classes="windowControl" Click="CloseButton_Click">
+                        <Path Data="M2,2 L10,10 M10,2 L2,10"
+                            Stroke="{DynamicResource TextPrimaryBrush}" StrokeThickness="1.3"
+                            StrokeLineCap="Square" />
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main Content - Editable document with inline outputs -->
+        <ScrollViewer Grid.Row="1" Background="{DynamicResource SurfaceBrush}"
+            Padding="20,12,20,12"
+            BorderThickness="0"
+            BorderBrush="Transparent"
+            HorizontalScrollBarVisibility="Auto"
+            VerticalScrollBarVisibility="Auto">
+            <Grid ColumnDefinitions="Auto,*,Auto,260" Margin="0,0,0,48">
+                <ItemsControl Grid.Column="0"
+                    ItemsSource="{Binding Lines}"
+                    Margin="0,0,8,0"
+                    BorderThickness="0"
+                    BorderBrush="Transparent"
+                    IsHitTestVisible="False">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Height="{StaticResource EditorLineHeight}">
+                                <TextBlock Text="{Binding LineNumber}"
+                                    Classes="lineNumber"
+                                    Margin="0"
+                                    VerticalAlignment="Center" />
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <TextBox Grid.Column="1"
+                    Text="{Binding Document, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    AcceptsReturn="True"
+                    AcceptsTab="True"
+                    Classes="editor"
+                    FontFamily="Consolas, Courier New, monospace"
+                    FontSize="14"
+                    LineHeight="{StaticResource EditorLineHeight}"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                    ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                    TextWrapping="NoWrap" />
+
+                <GridSplitter Grid.Column="2"
+                    Classes="splitter"
+                    ResizeDirection="Columns"
+                    ResizeBehavior="PreviousAndNext" />
+
+                <ItemsControl Grid.Column="3"
+                    ItemsSource="{Binding Lines}"
+                    Margin="16,0,0,0"
+                    BorderThickness="0"
+                    BorderBrush="Transparent">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Classes="lineContainer"
+                                Classes.errorContainer="{Binding HasError}">
+                                <Grid ColumnDefinitions="Auto,*,Auto" VerticalAlignment="Center">
+                                    <TextBlock Grid.Column="0"
+                                        Text="{Binding LineNumber}"
+                                        Classes="lineNumber"
+                                        VerticalAlignment="Center" />
+
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6"
+                                        VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Result}"
+                                            Classes="result"
+                                            TextWrapping="NoWrap"
+                                            TextTrimming="CharacterEllipsis"
+                                            ToolTip.Tip="{Binding Result}"
+                                            IsVisible="{Binding ShowResult}" />
+
+                                        <TextBlock Text="{Binding Result}"
+                                            Classes="error"
+                                            TextWrapping="NoWrap"
+                                            TextTrimming="CharacterEllipsis"
+                                            ToolTip.Tip="{Binding Result}"
+                                            IsVisible="{Binding ShowError}" />
+
+                                        <TextBlock Text="{Binding Result}"
+                                            Classes="comment"
+                                            TextWrapping="NoWrap"
+                                            TextTrimming="CharacterEllipsis"
+                                            ToolTip.Tip="{Binding Result}"
+                                            IsVisible="{Binding ShowComment}" />
+                                    </StackPanel>
+
+                                    <Button Grid.Column="2"
+                                        Classes="copy"
+                                        Content="Copy"
+                                        ToolTip.Tip="Copy result"
+                                        IsVisible="{Binding ShowResult}"
+                                        Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).CopyResultCommand}"
+                                        CommandParameter="{Binding Result}" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
+        </ScrollViewer>
+
+        <!-- Status Bar -->
+        <Border Grid.Row="2" Background="{DynamicResource SurfaceBrush}"
+            BorderBrush="{DynamicResource BorderBrush}"
+            BorderThickness="0,1,0,0" Padding="12,6">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <TextBlock Grid.Column="0"
+                    Text="{Binding LineCount, StringFormat='Lines: {0}'}"
+                    Foreground="{DynamicResource TextSecondaryBrush}"
+                    FontSize="11"
+                    Margin="0,0,16,0" />
+
+                <TextBlock Grid.Column="1"
+                    Text="{Binding StatusMessage}"
+                    Foreground="{DynamicResource TextPrimaryBrush}"
+                    FontSize="11"
+                    HorizontalAlignment="Center" />
+
+                <TextBlock Grid.Column="2"
+                    Text="{Binding ErrorCount, StringFormat='Errors: {0}'}"
+                    Foreground="{DynamicResource ErrorBrush}"
+                    FontSize="11"
+                    IsVisible="{Binding HasErrors}" />
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
